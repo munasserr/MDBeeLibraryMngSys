@@ -9,8 +9,11 @@ from rest_framework import viewsets
 from ..models import BorrowRecord
 from .serializers import BorrowRecordSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class BorrowBook(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         book_id = request.data.get('book_id')
         borrower_id = request.data.get('borrower_id')
@@ -32,6 +35,7 @@ class BorrowBook(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class ReturnBook(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         record_id = request.data.get('record_id')
         borrow_record = get_object_or_404(BorrowRecord, pk=record_id)
@@ -48,6 +52,7 @@ class ReturnBook(APIView):
 
 
 class BorrowRecordDetail(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, pk, format=None):
         borrow_record = BorrowRecord.objects.filter(pk=pk).first()
         if borrow_record is not None:
@@ -58,6 +63,7 @@ class BorrowRecordDetail(APIView):
 
 class BorrowRecordViewSet(viewsets.ModelViewSet):
     queryset = BorrowRecord.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = BorrowRecordSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['borrower', 'book', 'returned','borrow_date','due_date','actual_return_date']
